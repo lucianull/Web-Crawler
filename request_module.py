@@ -1,23 +1,21 @@
-from operator import mod
+from logging import exception
+import threading
 import requests
 import re
-from variables import POWERS, REGEX_PATTERN, INDEX, FOLDER_INDEX
+from variables import POWERS, REGEX_PATTERN, PATH
 import time
 from concurrent.futures import ThreadPoolExecutor
 import os
+from queue import Queue, Empty
+import sys
 
 HASH_CODES = set()
 MODULO = 2147483647
-PATH = "Links/"
-nr = 0
+LINKS_LIST = Queue()
+outFILE = open(PATH, 'w')
+EXCEPTIONS = {'js', 'png', 'jpg', 'css', 'jpeg', 'webp', 'xml'}
 
-def DeleteAllFiles():
-    for file_name in os.listdir(PATH):
-        file = PATH + file_name
-        if os.path.isfile(file):
-            os.remove(file)
-
-def CreateHash(link):
+def CreateHash(link: str) -> int:
     hashCode = 0
     i = 0
     for chr in link:
@@ -27,54 +25,47 @@ def CreateHash(link):
             i += 1
     return hashCode
 
-def GetSessionLinks(session, base_url):
-    global nr
-    global FOLDER_INDEX
-    ok = 0
-    with open(PATH + str(FOLDER_INDEX) + '.in', 'w') as outFILE:
-        global INDEX
-        page = session.get(base_url).text
-        for link in re.finditer(REGEX_PATTERN, page):
-            url = link.group()
-            hash_code = CreateHash(url)
-            if hash_code not in HASH_CODES:
-                HASH_CODES.add(hash_code)
-                outFILE.write(url)
-                outFILE.write('\n')
-                nr += 1
-                ok = 1
-    if ok:
-        FOLDER_INDEX += 1
+def GetSufix(string: str) -> str:
+    aux = string[-5:]
+    if aux[0] == '.':
+        return aux[1:]
+    if aux[1] == '.':
+        return aux[2:]
+    if aux[2] == '.':
+        return aux[3:]
+    return None
 
-def StartNewCrawling(base_link, timeout):
-    DeleteAllFiles()
-    global INDEX
-    global FOLDER_INDEX
-    INDEX = 1
-    FOLDER_INDEX = 1
-    with open(PATH + str(FOLDER_INDEX) + '.in', 'w') as outFile:
-        outFile.write(base_link)
-    FOLDER_INDEX = 2
+def GetSessionLinks(session, base_url: str):
+    page = session.get(base_url).text
+    for link in re.finditer(REGEX_PATTERN, page):
+        url = link.group()
+        hash_code = CreateHash(url)
+        if hash_code not in HASH_CODES:
+            sufix = GetSufix(url)
+            if sufix not in EXCEPTIONS:
+                LINKS_LIST.put(url)
+            HASH_CODES.add(hash_code)
+            outFILE.write(url)
+            outFILE.write('\n')
+
+def StartCrawler(base_link):
     Session = requests.Session()
-    start_time = time.time()
-    while(time.time() - start_time <= timeout):
-        with open(PATH + str(INDEX) + '.in', 'r') as inFILE:
-            for link in inFILE.readlines():
-                #Session = requests.Session()
-                GetSessionLinks(Session, link)
-        INDEX += 1
+    global LINKS_LIST
+    LINKS_LIST.put(base_link)
+    HASH_CODES.add(CreateHash(base_link))
+    with ThreadPoolExecutor(max_workers=35) as executor:
+        while True:
+            try:
+                target_url = LINKS_LIST.get()
+                executor.submit(GetSessionLinks, Session, target_url)
+            except:
+                continue
 
-
-    
-
-
-if __name__ == '__main__':
-    # DeleteAllFiles()
-    start_time = time.time()
-
-    StartNewCrawling('https://stirileprotv.ro/', 10)
-    # # session = requests.Session()
-    # # GetSessionLink(session, 'https://stirileprotv.ro/')
-    print(nr)
-    print("--- %s seconds ---" % (time.time() - start_time))
-    
+if __name__ =='__main__':
+    inFILE = open('data.txt', 'r')
+    base_link = inFILE.readline().rstrip()
+    timeout = int(inFILE.readline())
+    new_thread = threading.Thread(target=StartCrawler, args=[base_link])
+    new_thread.start()
+    time.sleep(timeout)
+    os._exit(0)
