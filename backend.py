@@ -1,5 +1,7 @@
 from lib2to3.pgen2.token import RPAR
 import os
+import subprocess
+import sys
 from tkinter import Pack
 from variables import PATH
 import platform
@@ -9,13 +11,15 @@ def RunScript(root_link, timeout):
         outFILE.write(root_link)
         outFILE.write('\n')
         outFILE.write(timeout)
-    # subprocess.call('request_module.py', shell=False)
+    # subprocess.run('request_module.py', shell=True)
     os.system('python request_module.py')
 
 def OpenFolder():
     if platform.system() == 'Windows':
+        # subprocess.run('links.txt', shell=True)
         os.system('links.txt')
     if platform.system() == 'Linux':
+        # subprocess.call('xdg-open links.txt', shell=False)
         os.system('xdg-open links.txt')
 
 def GetLinksNumber():
