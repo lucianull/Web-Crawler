@@ -4,9 +4,9 @@ from http.client import REQUEST_TIMEOUT
 import time
 from tkinter import *
 from tkinter.ttk import Progressbar
-from turtle import speed, st
 from backend import RunScript, OpenFolder, GetLinksNumber
 import threading
+import platform
 
 WIDTH = 600
 HEIGHT = 350
@@ -86,3 +86,4 @@ if __name__ == '__main__':
     StartButton = ButtonBox(Window, "Start Crawling", '#5c5c5c', '#a9a9a9', '#5c5c5c', '#a9a9a9', 160, 190, Run, BaseLinkBox, TimeoutBox, ProgressWidget, LinksNumberLabel)
     SpreadSheetButton = ButtonBox(Window, "Open links file", '#5c5c5c', '#a9a9a9', '#5c5c5c', '#a9a9a9', 330, 190, OpenFile)
     Window.mainloop()
+    

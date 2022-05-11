@@ -2,6 +2,7 @@ from lib2to3.pgen2.token import RPAR
 import os
 from tkinter import Pack
 from variables import PATH
+import platform
 
 def RunScript(root_link, timeout):
     with open("data.txt", 'w') as outFILE:
@@ -12,8 +13,10 @@ def RunScript(root_link, timeout):
     os.system('python request_module.py')
 
 def OpenFolder():
-    os.chdir(r'Links')
-    os.system(r'links.txt')
+    if platform.system() == 'Windows':
+        os.system('links.txt')
+    if platform.system() == 'Linux':
+        os.system('xdg-open links.txt')
 
 def GetLinksNumber():
     i = 0

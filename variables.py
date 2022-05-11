@@ -20,7 +20,7 @@ POWERS = [31, 961, 29791, 923521, 28629151, 887503681, 1742810347, 340029582, 19
           210512087, 83423756, 438652789, 713334577, 638535417, 467245104
         ]
 REGEX_PATTERN = r"(https:\/\/)[a-zA-Z0-9-]*(.ro)[a-zA-Z0-9-/.]*"
-PATH = "Links/links.txt"
+PATH = "links.txt"
 inFILE = open("data.txt", 'r')
 def LoadHashes():
   try:
