@@ -2,7 +2,7 @@ from logging import exception
 import threading
 import requests
 import re
-from variables import POWERS, REGEX_PATTERN, PATH
+from variables import POWERS, REGEX_PATTERN
 import time
 from concurrent.futures import ThreadPoolExecutor
 import os
@@ -12,7 +12,7 @@ import sys
 HASH_CODES = set()
 MODULO = 2147483647
 LINKS_LIST = Queue()
-outFILE = open(PATH, 'w')
+outFILE = open('links.txt', 'w')
 EXCEPTIONS = {'js', 'png', 'jpg', 'css', 'jpeg', 'webp', 'xml'}
 
 def CreateHash(link: str) -> int:
@@ -46,6 +46,7 @@ def GetSessionLinks(session, base_url: str):
                 LINKS_LIST.put(url)
             HASH_CODES.add(hash_code)
             outFILE.write(url)
+            print(url)
             outFILE.write('\n')
 
 def StartCrawler(base_link):
