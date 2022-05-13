@@ -46,7 +46,7 @@ def GetSessionLinks(session, base_url: str):
                 LINKS_LIST.put(url)
             HASH_CODES.add(hash_code)
             outFILE.write(url)
-            print(url)
+           # print(url)
             outFILE.write('\n')
 
 def StartCrawler(base_link):
